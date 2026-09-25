@@ -1,0 +1,116 @@
+const serversGrid = document.getElementById('serversGrid');
+const statsGrid = document.getElementById('statsGrid');
+const serverForm = document.getElementById('serverForm');
+const serverModal = document.getElementById('serverModal');
+const openAddServer = document.getElementById('openAddServer');
+const closeModal = document.getElementById('closeModal');
+
+const getStatusClass = (status) => {
+  if (status === 'running') return 'running';
+  if (status === 'stopped') return 'stopped';
+  return 'restarting';
+};
+
+const renderStats = (servers) => {
+  const total = servers.length;
+  const online = servers.filter(server => server.status === 'running').length;
+  const stopped = servers.filter(server => server.status === 'stopped').length;
+
+  const cards = [
+    { label: 'Total', value: total, detail: 'Servidores' },
+    { label: 'Online', value: online, detail: 'Ativos' },
+    { label: 'Parados', value: stopped, detail: 'Sem resposta' }
+  ];
+
+  statsGrid.innerHTML = cards.map((card) => `
+    <div class="stat-card">
+      <h3>${card.label}</h3>
+      <div class="stat-value">
+        <span>${card.value}</span>
+        <small>${card.detail}</small>
+      </div>
+    </div>
+  `).join('');
+};
+
+const renderServers = (servers) => {
+  serversGrid.innerHTML = servers.map((server) => `
+    <article class="server-card">
+      <div class="server-header">
+        <div class="server-info">
+          <h4>${server.name}</h4>
+          <div class="meta">${server.type} • Porta ${server.port}</div>
+        </div>
+        <span class="server-badge ${getStatusClass(server.status)}">${server.status}</span>
+      </div>
+
+      <div class="metrics">
+        <div class="metric-box">
+          <span>CPU</span>
+          <strong>${server.metrics.cpu}%</strong>
+        </div>
+        <div class="metric-box">
+          <span>Memória</span>
+          <strong>${server.metrics.memory}%</strong>
+        </div>
+        <div class="metric-box">
+          <span>Uptime</span>
+          <strong>${server.metrics.uptime}</strong>
+        </div>
+      </div>
+
+      <div class="server-actions">
+        <button class="start-btn" data-action="start" data-id="${server.id}">Iniciar</button>
+        <button class="stop-btn" data-action="stop" data-id="${server.id}">Parar</button>
+        <button class="restart-btn" data-action="restart" data-id="${server.id}">Reiniciar</button>
+      </div>
+
+      <div class="logs">
+        <div class="meta">Últimos logs</div>
+        <ul>
+          ${server.logs.slice(0, 3).map(log => `<li>• ${log}</li>`).join('')}
+        </ul>
+      </div>
+    </article>
+  `).join('');
+};
+
+const loadServers = async () => {
+  const response = await fetch('/api/servers');
+  const servers = await response.json();
+  renderStats(servers);
+  renderServers(servers);
+};
+
+const handleAction = async (event) => {
+  const actionButton = event.target.closest('[data-action]');
+  if (!actionButton) return;
+
+  const { action, id } = actionButton.dataset;
+  await fetch(`/api/servers/${id}/${action}`, { method: 'POST' });
+  await loadServers();
+};
+
+openAddServer.addEventListener('click', () => serverModal.classList.remove('hidden'));
+closeModal.addEventListener('click', () => serverModal.classList.add('hidden'));
+
+document.addEventListener('click', handleAction);
+
+serverForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(serverForm);
+  const newServer = Object.fromEntries(formData.entries());
+
+  await fetch('/api/servers', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newServer)
+  });
+
+  serverForm.reset();
+  serverModal.classList.add('hidden');
+  await loadServers();
+});
+
+loadServers();

@@ -1,2 +1,4 @@
-# server-manager
-Painel web para gerir servidores e serviços locais com interface moderna
+node_modules/
+.env
+.DS_Store
+npm-debug.log*

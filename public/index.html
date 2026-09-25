@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Server Manager</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">S</div>
+          <div>
+            <p class="eyebrow">Painel</p>
+            <h2>Server Manager</h2>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item active">Dashboard</button>
+          <button class="nav-item">Servidores</button>
+          <button class="nav-item">Logs</button>
+          <button class="nav-item">Configurações</button>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Visão geral</p>
+            <h1>Gestor de servidores</h1>
+          </div>
+          <button class="primary-btn" id="openAddServer">+ Adicionar servidor</button>
+        </header>
+
+        <section class="stats-grid" id="statsGrid"></section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Servidores</h3>
+          </div>
+          <div class="servers-grid" id="serversGrid"></div>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal hidden" id="serverModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Novo servidor</h3>
+          <button class="close-btn" id="closeModal">×</button>
+        </div>
+
+        <form id="serverForm">
+          <label>
+            Nome
+            <input type="text" name="name" placeholder="Ex: API Gateway" required />
+          </label>
+
+          <label>
+            Tipo
+            <input type="text" name="type" placeholder="Ex: Node.js" required />
+          </label>
+
+          <label>
+            Porta
+            <input type="number" name="port" placeholder="3001" required />
+          </label>
+
+          <label>
+            Comando
+            <input type="text" name="command" placeholder="npm run start" required />
+          </label>
+
+          <button type="submit" class="primary-btn wide">Guardar servidor</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
